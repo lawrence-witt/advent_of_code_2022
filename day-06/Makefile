@@ -1,5 +1,3 @@
-SHELL := /bin/bash
-
 part-1: 
 	sh deploy.sh 4
 .PHONY: part-1
