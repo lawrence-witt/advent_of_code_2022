@@ -21,14 +21,12 @@ contract Contract {
                 if (input_bytes[i] == slice_bytes[j]) {
                     moves = j > moves ? j : moves;
                 }
-            }
-            if (moves == 0) {
-                return i + 1;
-            }
-            for (uint j = 1; j < slice_bytes.length; j++) {
                 slice_bytes[j - 1] = slice_bytes[j];
             }
             slice_bytes[slice_bytes.length - 1] = input_bytes[i];
+            if (moves == 0) {
+                return i + 1;
+            }
         }
         return 0;
     }
