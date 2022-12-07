@@ -15,6 +15,9 @@ contract Contract {
                 }
             }
         }
+        if (moves == 0) {
+            return size;
+        }
         for (uint i = slice_bytes.length; i < input_bytes.length; i++) {
             moves--;
             for (uint j = 1; j < slice_bytes.length; j++) {
