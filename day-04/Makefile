@@ -1,7 +1,7 @@
 part-1:
-	Rscript part-1.r
+	Rscript script.r 1
 PHONY: part-1
 
 part-2:
-	Rscript part-2.r
+	Rscript script.r 2
 PHONY: part-2
