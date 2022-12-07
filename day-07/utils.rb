@@ -35,3 +35,25 @@ class Directory
         return @sum
     end
 end
+
+def process_line(line, &callback)
+    if match = line.match(/^\$\scd\s(.+)$/)
+        cmd = match.captures[0];
+        if cmd == "/"
+            # no-op
+        elsif cmd == ".."
+            callback.call()
+            $pointer = $pointer.parent
+        else
+            $pointer = $pointer.dirs[cmd]
+        end
+    end
+    if match = line.match(/^dir\s(.+)$/)
+        dir = match.captures[0]
+        $pointer.dirs[dir] = Directory.new(dir, $pointer)
+    end
+    if match = line.match(/^(\d+)\s(.+)$/)
+        file = match.captures[1]
+        $pointer.files[file] = File.new(file, Integer(match.captures[0]))
+    end
+end
