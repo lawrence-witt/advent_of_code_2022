@@ -1,45 +1,18 @@
 include "tree.f90"
+include "alloc.f90"
 
 program part1
     use class_Tree
+    use utils_Alloc
     implicit none
 
-    integer io
-    CHARACTER(128) :: buffer
-    integer :: cols = 0, rows = 0
-
-    type(Tree), dimension(:,:), allocatable :: trees
     integer :: col_idx = 0
     integer :: row_idx = 0
     integer :: height = 0
-    integer :: max_height = 0
+    integer :: max_height = -1
     integer :: visible = 0
 
-    ! allocate array
-
-    open (1, file = 'input.txt', status = 'old')
-
-    read(1, '(a)') buffer
-    rewind 1
-
-    cols = len(buffer)
-    do while (buffer(cols:cols) == " ")
-        cols = cols - 1
-    enddo
-
-    do
-        read(1, *, iostat=io)
-        if (io/=0) exit
-        rows = rows + 1
-    enddo
-
-    rewind 1
-
-    allocate(trees(cols + 1, rows + 1))
-
-    ! begin calculation
-
-    max_height = -1
+    call allocate_array()
     
     do
         read(1, *, iostat=io) buffer
@@ -73,8 +46,6 @@ program part1
         row_idx = row_idx + 1
         max_height = -1
     end do
-
-    visible = 0
 
     do col_idx = 0, cols - 1
         max_height = -1
