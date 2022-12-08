@@ -1,45 +1,21 @@
-module class_Tree
-    implicit none
-    private
-    public :: Tree, get_visibility, set_visibility
-
-    type Tree
-        integer :: height
-        logical, dimension(4) :: visibility = [.false., .false., .false., .false.]
-    end type Tree
-contains
-    function get_visibility(this) result(is_visible)
-        class(Tree), intent(inout) :: this
-        logical :: is_visible
-        is_visible = this%visibility(1) .or. this%visibility(2) .or. this%visibility(3) .or. this%visibility(4)
-    end function get_visibility
-    subroutine set_visibility(this, dir)
-        class(Tree), intent(inout) :: this
-        integer, intent(in) :: dir
-        if (dir > 0 .and. dir < 5) then
-            this%visibility(dir) = .true.
-        end if
-    end subroutine set_visibility
-endmodule class_Tree
+include "tree.f90"
 
 program part1
     use class_Tree
     implicit none
 
-    CHARACTER(128) :: buffer
-    type(Tree), dimension(:,:), allocatable :: trees
-    integer col_idx
-    integer row_idx
-    integer height
-    integer max_height
-    integer cols, rows
     integer io
-    integer visible
+    CHARACTER(128) :: buffer
+    integer :: cols = 0, rows = 0
+
+    type(Tree), dimension(:,:), allocatable :: trees
+    integer :: col_idx = 0
+    integer :: row_idx = 0
+    integer :: height = 0
+    integer :: max_height = 0
+    integer :: visible = 0
 
     ! allocate array
-
-    cols = 0
-    rows = 0
 
     open (1, file = 'input.txt', status = 'old')
 
@@ -63,8 +39,6 @@ program part1
 
     ! begin calculation
 
-    visible = 0
-    row_idx = 0
     max_height = -1
     
     do
@@ -73,11 +47,11 @@ program part1
 
         ! read l2r
 
-        do col_idx=1, cols
-            read(buffer(col_idx:col_idx), '(I1)') height
-            trees(row_idx, col_idx - 1) = Tree(height)
+        do col_idx=0, cols - 1
+            read(buffer(col_idx + 1:col_idx + 1), '(I1)') height
+            trees(row_idx, col_idx) = Tree(height)
             if (height > max_height) then
-                call set_visibility(trees(row_idx, col_idx - 1), 1)
+                call set_visibility(trees(row_idx, col_idx), 1)
                 max_height = height
             end if
         enddo
@@ -98,7 +72,9 @@ program part1
 
         row_idx = row_idx + 1
         max_height = -1
-    enddo
+    end do
+
+    visible = 0
 
     do col_idx = 0, cols - 1
         max_height = -1

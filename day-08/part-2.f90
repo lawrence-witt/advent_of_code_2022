@@ -1,48 +1,22 @@
-module class_Tree
-    implicit none
-    private
-    public :: Tree, get_scenic_score, set_scenic_score
+include 'tree.f90'
 
-    type Tree
-        integer :: height
-        integer, dimension(4) :: scenic_score = [0, 0, 0, 0]
-    end type Tree
-contains
-    function get_scenic_score(this) result(score)
-        class(Tree), intent(inout) :: this
-        integer :: score
-        score = this%scenic_score(1) * this%scenic_score(2) * this%scenic_score(3) * this%scenic_score(4)
-    end function get_scenic_score
-    subroutine set_scenic_score(this, dir, score)
-        class(Tree), intent(inout) :: this
-        integer, intent(in) :: dir
-        integer, intent(in) :: score
-        if (dir > 0 .and. dir < 5) then
-            this%scenic_score(dir) = score
-        end if
-    end subroutine set_scenic_score
-endmodule class_Tree
-
-program part1
+program part2
     use class_Tree
     implicit none
 
     integer io
     CHARACTER(128) :: buffer
-    integer cols, rows
+    integer :: cols = 0, rows = 0
 
     type(Tree), dimension(:,:), allocatable :: trees
-    integer col_idx
-    integer row_idx
+    integer :: col_idx = 0
+    integer :: row_idx = 0
+    integer :: height = 0
+    integer :: score = 0
+    integer :: max_score = 0
     integer sub_idx
-    integer height
-    integer score
-    integer max_score
 
     ! allocate array
-
-    cols = 0
-    rows = 0
 
     open (1, file = 'input.txt', status = 'old')
 
@@ -65,8 +39,6 @@ program part1
     allocate(trees(cols + 1, rows + 1))
 
     ! begin calculation
-
-    row_idx = 0
     
     do
         read(1, *, iostat=io) buffer
@@ -75,7 +47,7 @@ program part1
         ! read l2r
 
         do col_idx=0, cols - 1
-            read(buffer(col_idx+1:col_idx+1), '(I1)') height
+            read(buffer(col_idx + 1:col_idx + 1), '(I1)') height
             trees(row_idx, col_idx) = Tree(height)
             sub_idx = col_idx - 1
             do while (sub_idx >= -1)
@@ -112,9 +84,6 @@ program part1
 
         row_idx = row_idx + 1
     end do
-
-    score = 0
-    max_score = 0
 
     do col_idx = 0, cols - 1
         ! read t2b
@@ -160,4 +129,4 @@ program part1
     end do
 
     print*, max_score
-end program part1
+end program part2
