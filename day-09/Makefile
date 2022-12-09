@@ -3,9 +3,9 @@ env:
 .PHONY: env
 
 part-1:
-	ocaml part-1.ml
+	ocaml script.ml 2
 .PHONY: part-1
 
 part-2:
-	ocaml part-2.ml
+	ocaml script.ml 10
 .PHONY: part-2

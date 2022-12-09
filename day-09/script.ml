@@ -1,25 +1,17 @@
 #load "str.cma";;
 module SS = Set.Make(String)
 
-let parse_line (line : string) : (string * int) option =
-  let expr = Str.regexp {|\([U|D|L|R]\) \([0-9]+\)|} in
-  if Str.string_match expr line 0 then
-    let direction = Str.matched_group 1 line in
-    let moves = Str.matched_group 2 line in
-    Some (direction, int_of_string moves)
-  else
-    None;;
+(* Helpers *)
+
+let rec get_knots ?(knots = []) count =
+  match knots, count with
+  | t, 0 -> t
+  | [], c -> get_knots ~knots:[(0, 0)] (c-1)
+  | t, c -> get_knots ~knots:((0, 0) :: t) (c-1)
 
 let get_key (x, y) = Format.sprintf "%i %i" x y
 
-let rec print_knots knots i =
-  match knots, i with
-  | k :: rest, count ->
-    Printf.printf "%i(%s) " count (get_key k);
-    print_knots rest (i + 1)
-  | _ -> 
-    print_endline "";
-    []
+(* Process Command *)
 
 let update_head head direction =
   match head, direction with
@@ -40,32 +32,41 @@ let update_tail (hx, hy) (tx, ty) =
   | 2, 2 -> (hx + ((tx - hx) / 2), hy + ((ty - hy) / 2))
   | _ -> (tx, ty)
 
-let rec process_rope direction unvisited visited calls =
+let rec process_rope direction unvisited visited =
   match unvisited, visited with
-  | [], [] -> []
   | [], v -> List.rev v
   | u1 :: urest, [] -> 
     let new_head = update_head u1 direction in
-    process_rope direction urest [new_head] (calls + 1)
+    process_rope direction urest [new_head]
   | [u1], v1 :: vrest ->
     let new_tail = update_tail v1 u1 in
-    process_rope direction [] (new_tail :: v1 :: vrest) (calls + 1)
+    process_rope direction [] (new_tail :: v1 :: vrest)
   | u1 :: urest, [v1] ->
     let new_tail = update_tail v1 u1 in
-    process_rope direction urest [new_tail; v1] (calls + 1)
+    process_rope direction urest [new_tail; v1]
   | u1 :: urest, v1 :: vrest ->
     let new_tail = update_tail v1 u1 in
-    process_rope direction urest (new_tail :: v1 :: vrest) (calls + 1)
+    process_rope direction urest (new_tail :: v1 :: vrest)
 
 let rec process_command direction moves ctx =
   match direction, moves, ctx with
-  | d, 0, (knots, set) ->
-    (knots, set)
+  | d, 0, c -> c
   | d, m, (knots, set) ->
-    let new_knots = process_rope direction knots [] 0 in
+    let new_knots = process_rope direction knots [] in
     let tail_knot = List.nth new_knots ((List.length new_knots) - 1) in
     let new_set = SS.add (get_key tail_knot) set in
     process_command d (m-1) (new_knots, new_set)
+
+(* Process Lines *)
+
+let parse_line (line : string) : (string * int) option =
+  let expr = Str.regexp {|\([U|D|L|R]\) \([0-9]+\)|} in
+  if Str.string_match expr line 0 then
+    let direction = Str.matched_group 1 line in
+    let moves = Str.matched_group 2 line in
+    Some (direction, int_of_string moves)
+  else
+    None;;
 
 let process_line line ctx =
   let parsed = parse_line line in
@@ -82,12 +83,6 @@ let process_lines file ctx =
       | None -> c
 in read_line ctx ();;
 
-let rec get_knots ?(knots = []) count =
-  match knots, count with
-  | t, 0 -> t
-  | [], c -> get_knots ~knots:[(0, 0)] (c-1)
-  | t, c -> get_knots ~knots:((0, 0) :: t) (c-1)
-
-let (_, set) = process_lines "input.txt" (get_knots 10, SS.singleton (get_key (0, 0)));;
+let (_, set) = process_lines "input.txt" (get_knots (int_of_string (Sys.argv.(1))), SS.singleton (get_key (0, 0)));;
 
 print_endline (string_of_int (SS.cardinal set))
