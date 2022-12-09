@@ -83,7 +83,7 @@ let process_lines file ctx =
     match line with
       | Some (l) -> read_line (process_line l c) ();
       | None -> c
-in read_line ctx ();;
+  in read_line ctx ();;
 
 let (_, set) = process_lines "input.txt" (get_knots (int_of_string (Sys.argv.(1))), SS.singleton (get_key (0, 0)));;
 
