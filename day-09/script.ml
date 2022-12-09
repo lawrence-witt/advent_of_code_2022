@@ -15,18 +15,16 @@ let get_move h t = h + ((t - h) / 2)
 
 (* Process Command *)
 
-let update_head head direction =
-  match head, direction with
-  | (x, y), "U" -> (x, y + 1)
-  | (x, y), "D" -> (x, y - 1)
-  | (x, y), "L" -> (x - 1, y)
-  | (x, y), "R" -> (x + 1, y)
-  | _ -> head
+let update_head (x, y) direction =
+  match direction with
+  | "U" -> (x, y + 1)
+  | "D" -> (x, y - 1)
+  | "L" -> (x - 1, y)
+  | "R" -> (x + 1, y)
+  | _ -> (x, y)
 
 let update_tail (hx, hy) (tx, ty) =
-  let abs_x = abs (hx - tx) in
-  let abs_y = abs (hy - ty) in
-  match abs_x, abs_y with
+  match abs (hx - tx), abs (hy - ty) with
   | 0, 2 -> (tx, get_move hy ty)
   | 2, 0 -> (get_move hx tx, ty)
   | 1, 2 -> (hx, get_move hy ty)
