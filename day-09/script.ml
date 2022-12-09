@@ -11,6 +11,8 @@ let rec get_knots ?(knots = []) count =
 
 let get_key (x, y) = Format.sprintf "%i %i" x y
 
+let get_move h t = h + ((t - h) / 2)
+
 (* Process Command *)
 
 let update_head head direction =
@@ -25,11 +27,11 @@ let update_tail (hx, hy) (tx, ty) =
   let abs_x = abs (hx - tx) in
   let abs_y = abs (hy - ty) in
   match abs_x, abs_y with
-  | 0, 2 -> (tx, hy + ((ty - hy) / 2))
-  | 2, 0 -> (hx + ((tx - hx) / 2), ty)
-  | 1, 2 -> (hx, hy + ((ty - hy) / 2))
-  | 2, 1 -> (hx + ((tx - hx) / 2), hy)
-  | 2, 2 -> (hx + ((tx - hx) / 2), hy + ((ty - hy) / 2))
+  | 0, 2 -> (tx, get_move hy ty)
+  | 2, 0 -> (get_move hx tx, ty)
+  | 1, 2 -> (hx, get_move hy ty)
+  | 2, 1 -> (get_move hx tx, hy)
+  | 2, 2 -> (get_move hx tx, get_move hy ty)
   | _ -> (tx, ty)
 
 let rec process_rope direction unvisited visited =
