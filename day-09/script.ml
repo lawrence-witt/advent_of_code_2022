@@ -40,9 +40,6 @@ let rec process_rope direction unvisited visited =
   | u1 :: urest, [] -> 
     let new_head = update_head u1 direction in
     process_rope direction urest [new_head]
-  | [u1], v1 :: vrest ->
-    let new_tail = update_tail v1 u1 in
-    process_rope direction [] (new_tail :: v1 :: vrest)
   | u1 :: urest, [v1] ->
     let new_tail = update_tail v1 u1 in
     process_rope direction urest [new_tail; v1]
@@ -51,13 +48,13 @@ let rec process_rope direction unvisited visited =
     process_rope direction urest (new_tail :: v1 :: vrest)
 
 let rec process_command direction moves ctx =
-  match direction, moves, ctx with
-  | d, 0, c -> c
-  | d, m, (knots, set) ->
+  match moves, ctx with
+  | 0, c -> c
+  | m, (knots, set) ->
     let new_knots = process_rope direction knots [] in
     let tail_knot = List.nth new_knots ((List.length new_knots) - 1) in
     let new_set = SS.add (get_key tail_knot) set in
-    process_command d (m-1) (new_knots, new_set)
+    process_command direction (m-1) (new_knots, new_set)
 
 (* Process Lines *)
 
