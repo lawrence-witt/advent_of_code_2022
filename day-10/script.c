@@ -42,13 +42,7 @@ int main(int argc, char **argv) {
     int cycles = 0;
     int x = 1;
     int signal_total = 0;
-    char display[6][40] = {};
-
-    for (int i = 0; i < 6; i++) {
-        for (int j = 0; j < 40; j++) {
-            display[i][j] = ' ';
-        }
-    }
+    char display[6][40];
 
     while (fgets(buffer, BUFFER_LEN, file_pointer)) {
         buffer[strcspn(buffer, "\n")] = 0;
