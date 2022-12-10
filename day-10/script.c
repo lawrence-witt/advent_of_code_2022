@@ -22,6 +22,12 @@ void assign_pixel(int cycles, int x, char display[6][40]) {
     }
 }
 
+void cycle(int * cycles, int x, int * signal_total, char display[6][40]) {
+    assign_pixel(*cycles, x, display);
+    *cycles = *cycles + 1;
+    *signal_total += signal_product(*cycles, x);
+}
+
 int main(int argc, char **argv) {
     FILE* file_pointer;
     char buffer[BUFFER_LEN];
@@ -49,17 +55,11 @@ int main(int argc, char **argv) {
         regmatch_t groups[1];
         if (regexec(&expr, buffer, 1, groups, 0) == 0) {
             int i = atoi(buffer + groups[0].rm_so);
-            assign_pixel(cycles, x, display);
-            cycles++;
-            signal_total += signal_product(cycles, x);
-            assign_pixel(cycles, x, display);
-            cycles++;
-            signal_total += signal_product(cycles, x);
+            cycle(&cycles, x, &signal_total, display);
+            cycle(&cycles, x, &signal_total, display);
             x += i;
         } else {
-            assign_pixel(cycles, x, display);
-            cycles++;
-            signal_total += signal_product(cycles, x);
+            cycle(&cycles, x, &signal_total, display);
         }
     }
 
