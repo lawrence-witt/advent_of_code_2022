@@ -1,3 +1,7 @@
 part-1:
-	python3 part-1.py
+	python3 script.py 1
 .PHONY: part-1
+
+part-2:
+	python3 script.py 2
+.PHONY: part-2
