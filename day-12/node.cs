@@ -26,11 +26,10 @@ namespace Script {
             }
             visited[context] = true;
         }
-        
+
         public bool IsReachable(int current) {
             return height <= current + 1;
         }
-
 
         public bool IsVisited(string context) {
             if (!visited.ContainsKey(context)) {
