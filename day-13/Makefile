@@ -1,11 +1,11 @@
 compile:
-	scalac part-1.scala
+	scalac solution.scala
 .PHONY: compile
 
 part-1:
-	scalac part-1.scala && scala Part1
-.PHONY: part
+	scala part-1.scala
+.PHONY: part-1
 
 part-2:
-	scalac part-2.scala && scala Part2
-.PHONY: part-1
+	scala part-2.scala
+.PHONY: part-2
