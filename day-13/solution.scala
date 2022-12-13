@@ -3,7 +3,7 @@ package solution
 enum Result:
     case Correct, Incorrect, Equal
 
-def subList(source: String): String = {
+def parseNextList(source: String, fn: (source: String, start: Int, end: Int) => String): String = {
     val start = source.indexOf('[')
     var depth = 0
     var i = start + 1
@@ -13,7 +13,7 @@ def subList(source: String): String = {
             depth += 1
         } else if (c == ']') {
             if (depth == 0) {
-                return source.slice(start + 1, i)
+                return fn(source, start, i)
             }
             depth -= 1
         }
@@ -22,23 +22,12 @@ def subList(source: String): String = {
     return ""
 }
 
+def subList(source: String): String = {
+    return parseNextList(source, (src, s, e) => src.slice(s + 1, e))
+}
+
 def truncList(source: String): String = {
-    val start = source.indexOf('[')
-    var depth = 0
-    var i = start + 1
-    while (i < source.length()) {
-        val c = source(i)
-        if (c == '[') {
-            depth += 1
-        } else if (c == ']') {
-            if (depth == 0) {
-                return s"${source.slice(0, start)}${source.slice(i + 1, source.length())}"
-            }
-            depth -= 1
-        }
-        i += 1
-    }
-    return ""
+    return parseNextList(source, (src, s, e) => s"${src.slice(0, s)}${src.slice(e + 1, src.length())}")
 }
 
 def truncInt(source: String, offset: Int): (Int, String) = {
