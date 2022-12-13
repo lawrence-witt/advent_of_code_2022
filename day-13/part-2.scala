@@ -4,7 +4,7 @@ import util.control.Breaks._
 enum Result:
     case Correct, Incorrect, Equal
 
-object Part1 {
+object Part2 {
     def subList(source: String): String = {
         val start = source.indexOf('[')
         var depth = 0
@@ -68,7 +68,6 @@ object Part1 {
     }
 
     def solve(left: String, right: String, index: Int): Result = {
-        // println(s"Solving: $left ||| $right ||| $index")
         val isLeftEnd = left.length() <= index
         val isRightEnd = right.length() <= index
         if (isLeftEnd && isRightEnd) {
@@ -110,28 +109,32 @@ object Part1 {
 
     def main(args: Array[String]) = {
         val source = Source.fromFile("input.txt")
-        var index = 0
-        var score = 0
-        var left = ""
-        var right = ""
+        var lines: List[String] = List("[[2]]", "[[6]]")
+        var result = 1;
         for (line <- source.getLines())
             breakable {
                 if (line == "") {
-                    left = ""
-                    right = ""
                     break
                 }
-                if (left == "") {
-                    index += 1
-                    left = line
-                    break
-                }
-                right = line
-                val result = solve(left, right, 0)
-                result match
-                    case Result.Correct => score += index
-                    case _ => break
+                lines = line :: lines
             }
-        println(score)
+        val sorted = lines.sortWith((a: String, b: String) => {
+            val result = solve(a, b, 0)
+            result match
+                case Result.Incorrect => false
+                case _ => true
+        })
+        for (i <- 0 until sorted.length)
+            breakable {
+                val s = sorted(i)
+                s match
+                    case "[[2]]" => result *= (i + 1)
+                    case "[[6]]" => {
+                        result *= (i + 1)
+                        break
+                    }
+                    case _ =>
+            }
+        println(result)
     }
 }
