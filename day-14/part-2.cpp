@@ -13,18 +13,18 @@ using coords_vec = std::vector<coord>;
 using coords_map = std::unordered_map<int, std::map<int, bool> >;
 using look_result = std::pair<bool, coord>;
 
-look_result look_right(coord c, coords_map &c_map, look_result (*look_down)(coord, coords_map, int), int floor) {
+look_result look_right(coord c, coords_map* c_map, look_result (*look_down)(coord, coords_map*, int), int floor) {
     coord next_coord = std::make_pair(c.first + 1, c.second + 1);
-    if (c_map.count(next_coord.first) == 1 && c_map[next_coord.first].count(next_coord.second) == 1) {
+    if ((*c_map).count(next_coord.first) == 1 && (*c_map)[next_coord.first].count(next_coord.second) == 1) {
         return std::make_pair(true, c);
     } else {
         return look_down(next_coord, c_map, floor);
     }
 }
 
-look_result look_left(coord c, coords_map &c_map, look_result (*look_down)(coord, coords_map, int), int floor) {
+look_result look_left(coord c, coords_map* c_map, look_result (*look_down)(coord, coords_map*, int), int floor) {
     coord next_coord = std::make_pair(c.first - 1, c.second + 1);
-    if (c_map.count(next_coord.first) == 1 && c_map[next_coord.first].count(next_coord.second) == 1) {
+    if ((*c_map).count(next_coord.first) == 1 && (*c_map)[next_coord.first].count(next_coord.second) == 1) {
         return look_right(c, c_map, look_down, floor);
     } else {
         return look_down(next_coord, c_map, floor);
@@ -37,8 +37,8 @@ void print_coord(coord c) {
     std::cerr << buffer;
 }
 
-look_result look_down(coord c, coords_map c_map, int floor) {
-    std::map<int, bool> y_points = c_map[c.first];
+look_result look_down(coord c, coords_map* c_map, int floor) {
+    std::map<int, bool> y_points = (*c_map)[c.first];
     int next_y = -10;
     for (const auto &p : y_points) {
         if (p.first == c.second) {
@@ -94,8 +94,7 @@ int main() {
 
     look_result l;
     int total = 0;
-    while((l = look_down(std::make_pair(500, 0), c_map, highest_y + 2)).first) {
-        print_coord(l.second);
+    while((l = look_down(std::make_pair(500, 0), &c_map, highest_y + 2)).first) {
         c_map[l.second.first][l.second.second] = true;
         total += 1;
     }

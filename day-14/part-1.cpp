@@ -13,38 +13,37 @@ using coords_vec = std::vector<coord>;
 using coords_map = std::unordered_map<int, std::map<int, bool> >;
 using look_result = std::pair<bool, coord>;
 
-look_result look_right(coord c, coords_map &c_map, look_result (*look_down)(coord, coords_map)) {
+look_result look_right(coord c, coords_map* c_map, look_result (*look_down)(coord, coords_map*)) {
     coord next_coord = std::make_pair(c.first + 1, c.second + 1);
-    if (c_map.count(next_coord.first) == 1 && c_map[next_coord.first].count(next_coord.second) == 1) {
+    if ((*c_map).count(next_coord.first) == 1 && (*c_map)[next_coord.first].count(next_coord.second) == 1) {
         return std::make_pair(true, c);
     } else {
         return look_down(next_coord, c_map);
     }
 }
 
-look_result look_left(coord c, coords_map &c_map, look_result (*look_down)(coord, coords_map)) {
+look_result look_left(coord c, coords_map* c_map, look_result (*look_down)(coord, coords_map*)) {
     coord next_coord = std::make_pair(c.first - 1, c.second + 1);
-    if (c_map.count(next_coord.first) == 1 && c_map[next_coord.first].count(next_coord.second) == 1) {
+    if ((*c_map).count(next_coord.first) == 1 && (*c_map)[next_coord.first].count(next_coord.second) == 1) {
         return look_right(c, c_map, look_down);
     } else {
         return look_down(next_coord, c_map);
     }
 }
 
-look_result look_down(coord c, coords_map c_map) {
-    std::map<int, bool> y_points = c_map[c.first];
-    int* next_y;
+look_result look_down(coord c, coords_map* c_map) {
+    std::map<int, bool> y_points = (*c_map)[c.first];
+    int next_y = -10;
     for (const auto &p : y_points) {
         if (p.first - 1 == c.second) {
             return look_left(c, c_map, &look_down);
         } else if (p.first - 1 > c.second) {
-            next_y = new int;
-            *next_y = p.first - 1;
+            next_y = p.first - 1;
             break;
         }
     }
-    if (next_y) {
-        return look_down(std::make_pair(c.first, *next_y), c_map);
+    if (next_y != -10) {
+        return look_down(std::make_pair(c.first, next_y), c_map);
     }
     return std::make_pair(false, c);
 }
@@ -83,7 +82,7 @@ int main() {
 
     look_result l;
     int total = 0;
-    while((l = look_down(std::make_pair(500, 0), c_map)).first) {
+    while((l = look_down(std::make_pair(500, 0), &c_map)).first) {
         c_map[l.second.first][l.second.second] = true;
         total += 1;
     }
