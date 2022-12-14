@@ -68,19 +68,14 @@ Output look_left(Coord c, coords_map* c_map, Output (*look_down)(Coord, coords_m
 }
 
 Output look_down(Coord c, coords_map* c_map, int floor) {
-    int next_y = -1;
-    for (const auto &p : (*c_map)[c.x]) {
-        if (floor > 0 && p.first == c.y) {
+    for (const auto &y_kv : (*c_map)[c.x]) {
+        if (floor > 0 && y_kv.first == c.y) {
             return Output{false, c};
-        } else if (p.first - 1 == c.y) {
+        } else if (y_kv.first - 1 == c.y) {
             return look_left(c, c_map, &look_down, floor);
-        } else if (p.first - 1 > c.y) {
-            next_y = p.first - 1;
-            break;
+        } else if (y_kv.first - 1 > c.y) {
+            return look_down(Coord{c.x, y_kv.first - 1}, c_map, floor);
         }
-    }
-    if (next_y != -1) {
-        return look_down(Coord{c.x, next_y}, c_map, floor);
     }
     if (floor > 0) {
         return Output{true, Coord{c.x, floor - 1}};
