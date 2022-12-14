@@ -1,7 +1,6 @@
 #include <iostream>
 #include "utils.h"
 
-// very slow
 int main() {
     input i = get_input();
     look_result l;
