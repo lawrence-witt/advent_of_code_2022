@@ -68,9 +68,8 @@ look_result look_left(coord c, coords_map* c_map, look_result (*look_down)(coord
 }
 
 look_result look_down(coord c, coords_map* c_map, int floor) {
-    std::map<int, bool>& y_points = (*c_map)[c.first];
     int next_y = -1;
-    for (const auto &p : y_points) {
+    for (const auto &p : (*c_map)[c.first]) {
         if (floor > 0 && p.first == c.second) {
             return std::make_pair(false, c);
         } else if (p.first - 1 == c.second) {
