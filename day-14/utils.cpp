@@ -51,7 +51,7 @@ input get_input() {
 
 look_result look_right(coord c, coords_map* c_map, look_result (*look_down)(coord, coords_map*, int), int floor) {
     coord next_coord = std::make_pair(c.first + 1, c.second + 1);
-    if ((*c_map).count(next_coord.first) == 1 && (*c_map)[next_coord.first].count(next_coord.second) == 1) {
+    if ((*c_map).count(next_coord.first) && (*c_map)[next_coord.first].count(next_coord.second)) {
         return std::make_pair(true, c);
     } else {
         return look_down(next_coord, c_map, floor);
@@ -60,7 +60,7 @@ look_result look_right(coord c, coords_map* c_map, look_result (*look_down)(coor
 
 look_result look_left(coord c, coords_map* c_map, look_result (*look_down)(coord, coords_map*, int), int floor) {
     coord next_coord = std::make_pair(c.first - 1, c.second + 1);
-    if ((*c_map).count(next_coord.first) == 1 && (*c_map)[next_coord.first].count(next_coord.second) == 1) {
+    if ((*c_map).count(next_coord.first) && (*c_map)[next_coord.first].count(next_coord.second)) {
         return look_right(c, c_map, look_down, floor);
     } else {
         return look_down(next_coord, c_map, floor);
