@@ -5,9 +5,9 @@
 #include "utils.h"
 
 using rti = std::regex_token_iterator<std::string::iterator>;
-using coords_vec = std::vector<coord>;
+using coords_vec = std::vector<Coord>;
 
-input get_input() {
+Input get_input() {
     std::ifstream file("input.txt");
     std::regex expr("(\\d+,\\d+)");
     rti rend;
@@ -15,7 +15,7 @@ input get_input() {
     int highest_y = 0;
 
     if (!file.is_open()) {
-        return std::make_pair(highest_y, c_map);
+        return Input{highest_y, c_map};
     }
 
     std::string line;
@@ -25,16 +25,16 @@ input get_input() {
         while (match != rend) {
             std::string coord = *match++;
             int ci = coord.find(",");
-            c_vec.push_back(std::make_pair(
+            c_vec.push_back(Coord{
                 std::stoi(coord.substr(0, ci).c_str()), 
                 std::stoi(coord.substr(ci + 1, coord.length()).c_str())
-            ));
+            });
         }
         for(coords_vec::size_type i = 0; i != c_vec.size() - 1; i++) {
-            int x_start = std::min(c_vec[i].first, c_vec[i+1].first);
-            int x_end = std::max(c_vec[i].first, c_vec[i+1].first);
-            int y_start = std::min(c_vec[i].second, c_vec[i+1].second);
-            int y_end = std::max(c_vec[i].second, c_vec[i+1].second);
+            int x_start = std::min(c_vec[i].x, c_vec[i+1].x);
+            int x_end = std::max(c_vec[i].x, c_vec[i+1].x);
+            int y_start = std::min(c_vec[i].y, c_vec[i+1].y);
+            int y_end = std::max(c_vec[i].y, c_vec[i+1].y);
             for(int i = x_start; i <= x_end; i++) {
                 for (int j = y_start; j <= y_end; j++) {
                     c_map[i][j] = true;
@@ -46,45 +46,45 @@ input get_input() {
         }
     }
 
-    return std::make_pair(highest_y, c_map);
+    return Input{highest_y, c_map};
 }
 
-look_result look_right(coord c, coords_map* c_map, look_result (*look_down)(coord, coords_map*, int), int floor) {
-    coord next_coord = std::make_pair(c.first + 1, c.second + 1);
-    if ((*c_map).count(next_coord.first) && (*c_map)[next_coord.first].count(next_coord.second)) {
-        return std::make_pair(true, c);
+Output look_right(Coord c, coords_map* c_map, Output (*look_down)(Coord, coords_map*, int), int floor) {
+    Coord next_coord = Coord{c.x + 1, c.y + 1};
+    if ((*c_map).count(next_coord.x) && (*c_map)[next_coord.x].count(next_coord.y)) {
+        return Output{true, c};
     } else {
         return look_down(next_coord, c_map, floor);
     }
 }
 
-look_result look_left(coord c, coords_map* c_map, look_result (*look_down)(coord, coords_map*, int), int floor) {
-    coord next_coord = std::make_pair(c.first - 1, c.second + 1);
-    if ((*c_map).count(next_coord.first) && (*c_map)[next_coord.first].count(next_coord.second)) {
+Output look_left(Coord c, coords_map* c_map, Output (*look_down)(Coord, coords_map*, int), int floor) {
+    Coord next_coord = Coord{c.x - 1, c.y + 1};
+    if ((*c_map).count(next_coord.x) && (*c_map)[next_coord.x].count(next_coord.y)) {
         return look_right(c, c_map, look_down, floor);
     } else {
         return look_down(next_coord, c_map, floor);
     }
 }
 
-look_result look_down(coord c, coords_map* c_map, int floor) {
+Output look_down(Coord c, coords_map* c_map, int floor) {
     int next_y = -1;
-    for (const auto &p : (*c_map)[c.first]) {
-        if (floor > 0 && p.first == c.second) {
-            return std::make_pair(false, c);
-        } else if (p.first - 1 == c.second) {
+    for (const auto &p : (*c_map)[c.x]) {
+        if (floor > 0 && p.first == c.y) {
+            return Output{false, c};
+        } else if (p.first - 1 == c.y) {
             return look_left(c, c_map, &look_down, floor);
-        } else if (p.first - 1 > c.second) {
+        } else if (p.first - 1 > c.y) {
             next_y = p.first - 1;
             break;
         }
     }
     if (next_y != -1) {
-        return look_down(std::make_pair(c.first, next_y), c_map, floor);
+        return look_down(Coord{c.x, next_y}, c_map, floor);
     }
     if (floor > 0) {
-        return std::make_pair(true, std::make_pair(c.first, floor - 1));
+        return Output{true, Coord{c.x, floor - 1}};
     } else {
-        return std::make_pair(false, c);
+        return Output{false, c};
     }
 }
