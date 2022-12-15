@@ -1,3 +1,8 @@
+import fs from 'fs';
+import readline from 'readline';
+
+const FILE = './input.txt';
+
 export class Sensor {
     x;
     y;
@@ -11,7 +16,7 @@ export class Sensor {
         this.by = by;
     }
 
-    apply_1(y: number, map: Map<number, boolean>) {
+    apply(y: number, map: Map<number, boolean>) {
         const scope = Math.abs(this.x - this.bx) + Math.abs(this.y - this.by);
         if (y <= this.y + scope && y >= this.y - scope) {
             const xPositions = scope - Math.abs(y - this.y);
@@ -21,7 +26,7 @@ export class Sensor {
         }
     }
 
-    apply_2(y: number, min: number, max: number) {
+    range(y: number, min: number, max: number) {
         const scope = Math.abs(this.x - this.bx) + Math.abs(this.y - this.by);
         if (y <= this.y + scope && y >= this.y - scope) {
             const xPositions = scope - Math.abs(y - this.y);
@@ -29,14 +34,32 @@ export class Sensor {
         }
         return undefined;
     }
+}
 
-    getMinY() {
-        const scope = Math.abs(this.x - this.bx) + Math.abs(this.y - this.by);
-        return this.y - scope;
+export const getSensors = async () => {
+    const rl = readline.createInterface({
+        input: fs.createReadStream("input.txt"),
+        crlfDelay: Infinity
+    })
+
+    const expr = /(-?\d+)/g
+    const sensors: Sensor[] = [];
+
+    for await (const line of rl) {
+        const [sx, sy, bx, by] = line.match(expr)!.map(Number);
+        const sensor = new Sensor(sx, sy, bx, by);
+        sensors.push(sensor);
     }
 
-    getMaxY() {
-        const scope = Math.abs(this.x - this.bx) + Math.abs(this.y - this.by);
-        return this.y + scope;
-    }
+    return sensors;
+}
+
+export const getRanges = (sensors: Sensor[], y: number, min: number, max: number) => {
+    return sensors.reduce((out: (readonly [number, number])[], sensor) => {
+        const r = sensor.range(y, min, max);
+        if (r) {
+            out.push(r);
+        }
+        return out;
+    }, []);
 }
