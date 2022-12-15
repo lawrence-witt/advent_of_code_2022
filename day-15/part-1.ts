@@ -1,7 +1,9 @@
 import fs from 'fs';
 import readline from 'readline';
+import { Sensor } from './utils';
 
-const TY = 2000000;
+const fakeY = 10;
+const realY = 2000000;
 
 (async () => {
     const rl = readline.createInterface({
@@ -12,16 +14,14 @@ const TY = 2000000;
     const expr = /(-?\d+)/g
     const map = new Map<number, boolean>();
 
+    const sensors: Sensor[] = [];
+
     for await (const line of rl) {
         const [sx, sy, bx, by] = line.match(expr)!.map(Number);
-        const scope = Math.abs(sx - bx) + Math.abs(sy - by);
-        if (TY <= sy + scope && TY >= sy - scope) {
-            const xPositions = scope - Math.abs(TY - sy);
-            for (let x = sx - xPositions; x <= sx + xPositions; x++) {
-                map.set(x, x === bx && TY === by ? true : false);
-            }
-        }
+        sensors.push(new Sensor(sx, sy, bx, by));
     }
+
+    sensors.forEach((sensor) => sensor.apply_1(realY, map));
 
     let total = 0;
 
