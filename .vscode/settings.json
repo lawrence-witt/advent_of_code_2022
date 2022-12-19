@@ -72,5 +72,6 @@
         "functional": "cpp",
         "iterator": "cpp",
         "utility": "cpp"
-    }
+    },
+    "FSharp.suggestGitignore": false
 }
