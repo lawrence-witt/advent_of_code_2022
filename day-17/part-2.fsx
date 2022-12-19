@@ -1,4 +1,5 @@
 let pattern = System.IO.File.ReadAllText "input.txt";
+let totalMoves = 1000000000000L
 
 let clamp (mn: int, pref: int, mx: int) =
     max mn (min pref mx)
@@ -149,7 +150,7 @@ let rec simulateRock (rock: Rock, p: int, grid: Map<int, Map<int, bool>>) =
         | true -> simulateRock(rock.Move('d'), (p + 1) % pattern.Length, grid)
         | false -> (rock.Height(), (p + 1) % pattern.Length, assignPoints(rock.Points, grid))
 
-let getXMod (p: int, shape: string) =
+let getModX (p: int, shape: string) =
     let maxX = 
         match shape with
         | "Horizontal" -> 3
@@ -174,44 +175,48 @@ let getLowestHorizontalX (height: int, grid: Map<int, Map<int, bool>>) =
         )
     | None -> None
 
-let rec simulateGrid (rocks: int64, height: int, moves: int, p: int, grid: Map<int, Map<int, bool>>, record: Map<string, bool>) =
+let getRepeatKey (height: int, p: int, grid: Map<int, Map<int, bool>>) =
+    match getLowestHorizontalX(height, grid) with
+    | Some(x) -> Some(sprintf "%i-%i" p x)
+    | None -> None
+
+let testRepeatKey (key: string option, record: Map<string, int>) =
+    match key with
+    | Some(key) ->
+        match record.TryFind(key) with
+        | Some(v) ->
+            if v = 1 then (true, false, record.Add(key, 2)) else (false, true, record)
+        | None -> (false, false, record.Add(key, 1))
+    | None -> (false, false, record)
+
+let rec simulateGrid (rocks: int64, height: int, moves: int, p: int, grid: Map<int, Map<int, bool>>, record: Map<string, int>, repeats: List<int>) =
     match moves with
-    | m when int64(m) = rocks -> (height + 1, grid)
+    | m when int64(m) = rocks -> (height + 1, moves, grid, repeats)
     | m ->
-        if m % 1000000 = 0 then printfn "%i" m
+        // if m % 1000000 = 0 then printfn "%i" m
+        let nextKey = getRepeatKey(height, p, grid)
+        let repeatStarted = repeats.Length > 0
+        let (repeatStart, repeatEnd, nextRecord) = testRepeatKey(nextKey, record)
+        if repeatEnd then (height + 1, moves, grid, repeats) else
         let rockName = getRockName(m % 5)
-
-        let crossKey = 
-            match getLowestHorizontalX(height, grid) with
-            | Some(x) -> Some(sprintf "%i %i" p x)
-            | None -> None
-
-        let nextRecord = 
-            match crossKey with
-            | Some(key) -> 
-                if record.ContainsKey(key) then 
-                    printfn "%s exists at move %i" key m
-                    record
-                else 
-                    record.Add(key, true)
-            | None -> record
-
-        let (modP, xMod) = getXMod(p, rockName)
-        let rock = getRock(rockName, xMod, height + 1)
+        let (modP, modX) = getModX(p, rockName)
+        let rock = getRock(rockName, modX, height + 1)
         let (nextHeight, nextP, nextGrid) = simulateRock(rock, modP, grid)
-        simulateGrid(rocks, max nextHeight height, moves + 1, nextP, nextGrid, nextRecord)
+        let resolvedHeight = max nextHeight height
+        let nextRepeats = if repeatStart || repeatStarted then List.append repeats [resolvedHeight - height] else repeats
+        simulateGrid(rocks, resolvedHeight, moves + 1, nextP, nextGrid, nextRecord, nextRepeats)
 
-let (result, grid) = simulateGrid(10000, -1, 0, 0, Map.empty, Map.empty)
+let (height, moves, grid, repeats) = simulateGrid(totalMoves, -1, 0, 0, Map.empty, Map.empty, List.empty)
+
+// now, calculate how many moves are remaining
+// a. multiply the sum of the repeats list by (remaining moves / repeats.Length)
+// b. sum the slice of the repeats list (0, remaining moves % repeats.Length)
+// answer should be (height + a + b)
+
+let remainingMoves = totalMoves - int64(moves)
+let completeRepeats = int64(List.sum repeats) * (remainingMoves / int64(repeats.Length))
+let moduloRepeats = int((remainingMoves % int64(repeats.Length)) - 1L)
+let partialRepeats = int64(List.sum repeats[0..moduloRepeats])
+let result = int64(height) + completeRepeats + partialRepeats
 
 printfn "%i" result
-
-// System.IO.File.Delete("./part-2-output.txt")
-// System.IO.File.AppendAllText("./part-2-output.txt", "");
-
-// for i in result - 1 .. -1 .. 0 do
-//     match grid.TryFind(i) with
-//     | Some(keys) ->
-//         for j in 0 .. 6 do
-//             if keys.ContainsKey(j) then System.IO.File.AppendAllText("./part-2-output.txt", "#") else System.IO.File.AppendAllText("./part-2-output.txt", ".")
-//     | None -> printf ""
-//     System.IO.File.AppendAllText("./part-2-output.txt", "\n")
