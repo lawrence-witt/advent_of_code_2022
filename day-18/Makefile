@@ -1,7 +1,7 @@
 part-1:
-	elixir part-1.exs
+	elixir script.exs 1
 .PHONY: part-1
 
 part-2:
-	elixir part-2.exs
+	elixir script.exs 2
 .PHONY: part-2
